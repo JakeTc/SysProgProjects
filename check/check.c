@@ -51,16 +51,17 @@ int tknlng(char *str, char dlim) {
 	return lng;
 }
 
-//breaks a whole string into tokens based upon a delimeter parameter
-char **tokenizer(char whole[], char dlim){
+//breaks a whole string into tokens based upon a delimeter parameter.
+//DOES NOT include the delimeters!
+char **tokenizer(char whole[], char dlim, int *tknCount){
 	char *ptr = whole;
 	int strlength = 1; //INCLUDES "\0"
-	int tknCounter = 1;//expects AT LEAST 1 token. each delimeter will add to the amount of expected tokens
+	*tknCount = 1;//expects AT LEAST 1 token. each delimeter will add to the amount of expected tokens
 	
 	//counts the amount of delimeters present, then adds 1 to indicate the number of expexted tokens
 	while(*ptr != '\0') {
 		if(*ptr == dlim) {
-			tknCounter++;
+			*tknCount = *tknCount + 1;
 		}
 		
 		strlength++;
@@ -69,10 +70,10 @@ char **tokenizer(char whole[], char dlim){
 	
 	//resets the pointer at the beginning of the string
 	ptr = whole;
-	printf("Amt tkns: %d\n", tknCounter);
+	printf("Amt tkns: %d\n", *tknCount);
 	printf("Strlng: %d\n", strlength);	
 	
-	char **tokens = malloc(tknCounter * sizeof(char*));
+	char **tokens = malloc(*tknCount * sizeof(char*));
 	
 	printf("made char**\n");	
 	
@@ -80,7 +81,7 @@ char **tokenizer(char whole[], char dlim){
 	char* tknptr = ptr;
 	
 	int j;//for for-loop
-	for(j = 0; j < tknCounter - 1; j++) {
+	for(j = 0; j < (*tknCount) - 1; j++) {
 		//allocates space for the token
 		int tknsize = tknlng(tknptr, dlim);
 		tokens[j] = malloc(tknsize);
@@ -102,12 +103,12 @@ char **tokenizer(char whole[], char dlim){
 		
 		//allocates space for the token
 		int tknsize = tknlng(tknptr, dlim);
-		tokens[tknCounter - 1] = malloc(tknsize);
+		tokens[*tknCount - 1] = malloc(tknsize);
 		
 		//stores every character of the current token into the token array
 		int k;//for for-loop
 		for(k = 0; k < tknsize - 1; k++) {
-			tokens[tknCounter - 1][k] = *(tknptr);
+			tokens[*tknCount - 1][k] = *(tknptr);
 			tknptr++;
 		}
 		tokens[j][k] = '\0';
@@ -119,29 +120,60 @@ char **tokenizer(char whole[], char dlim){
 	printf("\nPrinting Tokens:\n");
 	//print tokens for testing
 	int i; //for for-loop
-	for(i = 0; i < tknCounter; i++) {
-		printf("%s\n", tokens[i]);
+	for(i = 0; i < *tknCount; i++) {
+		printf("\"%s\"\n", tokens[i]);
 	}
-	
+	printf("---------------------------------------------------\n");	
 	return tokens;
 }
 
 
 int main(int argc, char* argv[]) {
-	printf("length = %d\n", tknlng("hello", '\0'));
 
 	//check if given one and only one input
 	if(argc > 2) {
 		printf("error: too many arguments.\n");
 		return 0;
-	} else if(argc == 1) {
+	} else if(argc < 2) {
 		printf("error: no arguments given.\n");
 		return 0;
 	}
+	//keeps track of the tokens 	
+	int *tknCount = (int*)malloc(sizeof(int));
+	int i = 0;//counter for all for loops
+
+	char **expressions  = tokenizer(argv[1], ';', tknCount);
 	
-	char **expressions  = tokenizer(argv[1], ';');
+	//*
+	//keeps track of the operators and operands within each token
+	//using an array of pointers
+	char ***opers = (char***)malloc((*tknCount) * sizeof(char**));
+	int **tknCounters = (int**)malloc((*tknCount) * sizeof(int*));
 	
+	for(i = 0; i < *tknCount; i++) {
+		tknCounters[i] = (int*)malloc(sizeof(int*));
+	}
+	
+	i = 0;
+	for(i = 0; i < *tknCount; i++) {
+		printf("loop %d worked\n", i);	
+		opers[i] = tokenizer(expressions[i], ' ', tknCounters[i]);
+	}
+	//*/
+
+
+
+
+
+
+	
+	//free all elements of expression double pointer
+	i = 0;//reset for loop counter to 0
+	for(i = 0; i < *tknCount; i++) {
+		free(expressions[i]);
+	}
 	free(expressions);
+	free(tknCount);
 	
 	return 0;
 }
