@@ -51,6 +51,34 @@ int tknlng(char *str, char dlim) {
 	return lng;
 }
 
+//checks if the token is an arithmetic operand
+int aoperand(char *token) {
+	char **aopds = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}	
+
+	return 0;
+}
+
+//checks if the token is a logical operand
+int loperand(char *token) {
+	char **lopds = {"true", "false"};
+
+	return 0;
+}
+
+//checks if the token is an arithmetic operator
+int aoperator(char *token) {
+	char **aoprs = {"+", "-", "*", "/"};
+
+	return 0;
+}
+
+//checks if the token is a logical operator
+int aoperator(char *token) {
+	char **loprs = {"AND", "OR", "NOT"};
+
+	return 0;
+}
+
 //breaks a whole string into tokens based upon a delimeter parameter.
 //DOES NOT include the delimeters!
 char **tokenizer(char whole[], char dlim, int *tknCount){
@@ -126,7 +154,6 @@ char **tokenizer(char whole[], char dlim, int *tknCount){
 	printf("---------------------------------------------------\n");	
 	return tokens;
 }
-
 
 int main(int argc, char* argv[]) {
 
