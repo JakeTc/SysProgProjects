@@ -79,7 +79,7 @@ bool loperand(char *token) {
 		}
 	}
 	
-	return false;
+	return result;
 }
 
 //checks if the token is an arithmetic operator
@@ -99,14 +99,14 @@ bool aoperator(char *token) {
 		}
 	}
 
-	return false;
+	return result;
 }
 
 //checks if the token is a logical operator
 bool loperator(char *token) {
 	//list of logical operators
-	char *loprs[3] = {"AND", "OR", "NOT"};
-	int length = 3;//amount of valid operators
+	char *loprs[2] = {"AND", "OR"};
+	int length = 2;//amount of valid operators
 	
 	//loop to check if the token is within the list
 	int i;//variable that counts loop iterations
@@ -119,7 +119,30 @@ bool loperator(char *token) {
 		}
 	}
 
-	return false;
+	return result;
+}
+
+//checks if the token is an operand
+bool isoperator(char *token) {
+	bool result = false;
+	if(loperand(token) || aoperand(token)) {
+		result = true;
+	}
+	
+	return result;
+}
+
+//checking method exclusively for the NOT operator (since it is the only unary operator 
+bool notOp(char* token) {
+	
+	char nottkn[] = "NOT";
+	bool result = false;
+	if(strCompare(token, nottkn)) {
+		result = true;
+		
+	}
+	
+	return result;
 }
 
 //breaks a whole string into tokens based upon a delimeter parameter.
@@ -201,27 +224,20 @@ char **tokenizer(char whole[], char dlim, int *tknCount){
 int main(int argc, char* argv[]) {
 	//Testing area!
 	char  **test = malloc(sizeof(char*));
+
+	//printf("\n");
+
 	
-	printf("%d\n", aoperand("1"));
-	printf("%d\n", aoperand("2"));
-	printf("%d\n", aoperand("3"));
-	printf("%d\n", aoperand("4"));
-	printf("%d\n", aoperand("5"));
-	printf("%d\n", aoperand("6"));
-	printf("%d\n", aoperand("7"));
-	printf("%d\n", aoperand("8"));
-	printf("%d\n", aoperand("9"));	
-	printf("%d\n", aoperand("0"));
-	printf("%d\n", aoperand("10"));
-	
-	//checks if a sufficient amount of arguments are given	
+	//checks if the user inputted one argument
 	if(argc > 2) {
-		printf("error: too many arguments.\n");
+		printf("error: too may arguments given.\n");
 		return 0;
 	} else if(argc < 2) {
 		printf("error: no arguments given.\n");
 		return 0;
 	}
+
+
 	//keeps track of the tokens 	
 	int *tknCount = (int*)malloc(sizeof(int));
 	int i = 0;//counter for all for loops
