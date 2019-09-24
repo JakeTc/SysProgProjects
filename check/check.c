@@ -5,41 +5,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-//structure for generic linked list
-typedef struct _Node {
-	void *data;
-	struct _Node *next;
-} Node;
-
-//makes a new node
-Node *mkNode(void *data) {
-	Node *nwNode = malloc(sizeof(Node));
-	nwNode->data = data;
-	nwNode->next = NULL;
-
-	return nwNode;
-}
-
-//makes a new node at the front
-Node *push(void *data, Node *head) {
-	Node *nwNode = malloc(sizeof(Node));
-	nwNode->data = data;
-	nwNode->next = head;
-
-	return nwNode;
-}
-
-void deleteLL(Node *head) {
-	Node *current = head;
-	Node *next;
-	
-	while(current != NULL) {
-		next = current->next;
-		free(current);
-		current = next;
-	}
-
-}
+//makes boolean return values possible!
+typedef enum {false, true} bool;
 
 //coounts the numbeer of chars in a string INCLUDING delimeter
 int tknlng(char *str, char dlim) {
@@ -51,32 +18,108 @@ int tknlng(char *str, char dlim) {
 	return lng;
 }
 
-//checks if the token is an arithmetic operand
-int aoperand(char *token) {
-	char **aopds = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}	
+//compares two strings and returns true or false
+bool strCompare(char *arg1, char *arg2) {
+	int i = 0;//used to keep track of the current character
+	
+	//while loop to check if the end of a string has been reached
+	while((arg1[i] != '\0') && (arg2[i] != '\0')) {
+		//returns false if the characters are not equal
 
-	return 0;
+		if(arg1[i] != arg2[i]) {
+			return false;
+		}
+		i++;
+	}
+	
+	//returns true if both statements are \0.
+	if((arg1[i] == '\0') && (arg2[i] == '\0')) {
+		return true;
+	//retrurns false otherwise
+	} else {
+		return false;
+	}
+}
+
+//checks if the token is an arithmetic operand
+bool aoperand(char *token) {
+	//list of arithmetic operands
+	char *aopds[10] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+	
+	int length = 10;//amount of valid operands	
+	
+	//loop to check if the token is within the list
+	int i;//variable that counts loop iterations
+	bool result = false;//
+	for(i = 0; i < length; i++) {
+		//compares the tokens to see if they are equal!
+		if(strCompare(token, aopds[i])) {
+			result = true;
+			break;
+		}
+	}
+	
+	return result;
 }
 
 //checks if the token is a logical operand
-int loperand(char *token) {
-	char **lopds = {"true", "false"};
+bool loperand(char *token) {
+	//list of logical operands
+	char *lopds[2] = {"true", "false"};
+	int length = 2;//amount of valid operands
 
-	return 0;
+	//loop to check if the token is within the list
+	int i;//variable that counts loop iterations
+	bool result = false;//
+	for(i = 0; i < length; i++) {
+		//compares the tokens to see if they are equal!
+		if(strCompare(token, lopds[i])) {
+			result = true;
+			break;
+		}
+	}
+	
+	return false;
 }
 
 //checks if the token is an arithmetic operator
-int aoperator(char *token) {
-	char **aoprs = {"+", "-", "*", "/"};
+bool aoperator(char *token) {
+	//list of arithmetic operators
+	char *aoprs[4] = {"+", "-", "*", "/"};
+	int length = 4;//amount of valid operators
+	
+	//loop to check if the token is within the list
+	int i;//variable that counts loop iterations
+	bool result = false;//
+	for(i = 0; i < length; i++) {
+		//compares the tokens to see if they are equal!
+		if(strCompare(token, aoprs[i])) {
+			result = true;
+			break;
+		}
+	}
 
-	return 0;
+	return false;
 }
 
 //checks if the token is a logical operator
-int aoperator(char *token) {
-	char **loprs = {"AND", "OR", "NOT"};
+bool loperator(char *token) {
+	//list of logical operators
+	char *loprs[3] = {"AND", "OR", "NOT"};
+	int length = 3;//amount of valid operators
+	
+	//loop to check if the token is within the list
+	int i;//variable that counts loop iterations
+	bool result = false;//
+	for(i = 0; i < length; i++) {
+		//compares the tokens to see if they are equal!
+		if(strCompare(token, loprs[i])) {
+			result = true;
+			break;
+		}
+	}
 
-	return 0;
+	return false;
 }
 
 //breaks a whole string into tokens based upon a delimeter parameter.
@@ -156,8 +199,22 @@ char **tokenizer(char whole[], char dlim, int *tknCount){
 }
 
 int main(int argc, char* argv[]) {
-
-	//check if given one and only one input
+	//Testing area!
+	char  **test = malloc(sizeof(char*));
+	
+	printf("%d\n", aoperand("1"));
+	printf("%d\n", aoperand("2"));
+	printf("%d\n", aoperand("3"));
+	printf("%d\n", aoperand("4"));
+	printf("%d\n", aoperand("5"));
+	printf("%d\n", aoperand("6"));
+	printf("%d\n", aoperand("7"));
+	printf("%d\n", aoperand("8"));
+	printf("%d\n", aoperand("9"));	
+	printf("%d\n", aoperand("0"));
+	printf("%d\n", aoperand("10"));
+	
+	//checks if a sufficient amount of arguments are given	
 	if(argc > 2) {
 		printf("error: too many arguments.\n");
 		return 0;
