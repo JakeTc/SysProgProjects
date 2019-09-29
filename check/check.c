@@ -234,6 +234,34 @@ char **tokenizer(char whole[], char dlim, int *tknCount){
 }
 //*
 
+//function to be called when at the start of a new expression
+int newExp(char* token, int *set, int exp) {
+	//
+	int err = 0;
+	if(strCompare(token, "")) {
+		
+		*set = 1;
+	} else if(aoperand(token) || loperand(token)) {
+		//unexpected operand
+		printf("Error: Parse error in expression %d: incomplete expression\n\"%s\"\n", exp, token);
+		*set = 2;
+		err = 1;
+	} else if(aoperator(token) || loperator(token) || notOp(token)) {
+		//unexpected operator
+		printf("Error: Parse error in expression %d: incomplete expression\n\"%s\"\n", exp, token);
+		*set = 3;
+		err = 1;
+	} else {
+		//unknown identifier
+		printf("Error: Parse error in expression %d: incomplete expression\n\"%s\"\n", exp, token);
+		*set = 1;
+		err = 1;
+	}
+	
+	return err;	
+
+}
+
 //evaluates the first operand (or not) to see if it is valid
 int opd1(char *token, int *set, int *atype, int exp) {
 	
@@ -249,7 +277,6 @@ int opd1(char *token, int *set, int *atype, int exp) {
 		*set = 2;
 	} else if(notOp(token)) {
 		//check for NOT in next token,
-		err = 1;
 		*set = 3;
 	} else if(loperator(token) || aoperator(token)) {
 		//if operator, unexpected operator, move on
@@ -273,13 +300,13 @@ int opr(char *token, char *prev, int *set, int *atype, int exp) {
 		//check if the operand was the correct type
 		if((*atype == 1) && loperator(token)) {
 			//type mismatch error on previous operand
-			printf("Error: Parse error in expression %d: type mismatch in previous token\n\"%s\"\n", exp, prev);
+			printf("Error: Parse error in expression %d: type mismatch\n\"%s\"\n", exp, prev);
 			*atype = 2;
 			err = 1;
 			
 		} else if ((*atype == 2) && aoperator(token)){
 			//type mismatch error on previous operand
-			printf("Error: Parse error in expression %d: type mismatch in previous token\n\"%s\"\n", exp, prev);
+			printf("Error: Parse error in expression %d: type mismatch\n\"%s\"\n", exp, prev);
 			*atype = 1;
 			err = 1;
 		}
@@ -323,7 +350,7 @@ int opd2(char *token, int *set, int *atype, int exp) {
 			err = 1;
 		}
 		*set = 4;
-	} else if(aoperator(token) || loperator(token) || notOp) {
+	} else if(aoperator(token) || loperator(token) || notOp(token)) {
 		//unexpected operator
 		printf("Error: Parse error in expression %d: unexpected operator\n\"%s\"\n", exp, token);
 		*set = 3;
@@ -339,12 +366,32 @@ int opd2(char *token, int *set, int *atype, int exp) {
 }
 
 //run when there are extra tokens when the expression should have finished.
-int unEnded(char *token, int *set) {
+int unEnded(char *token, int *set, int exp, int *atype) {
 	if(aoperator(token) || loperator(token)) {
+		printf("Error: Parse error in expression %d: unexpected operator\n\"%s\"\n", exp, token);
+		*set = 3;
+		if(aoperator(token)) {
+			*atype = 1;
+		} else {
+			*atype = 2;
+		}
+		
+	} else if(notOp(token)) {
+		printf("Error: Parse error in expression %d: unexpected operator\n\"%s\"\n", exp, token);
+		*set = 3;
+		*atype = 2;
+
+	}else if(aoperand(token) || loperand(token)) {
+		printf("Error: Parse error in expression %d: unexpected operand\n\"%s\"\n", exp, token);
 		*set = 2;
-	} else if(aoperand || loperand) {
-		*set = 1;
-	} else { 
+		if(aoperand(token)) {
+			*atype = 1;
+		} else {
+			*atype = 2;
+		}
+		
+	} else {
+		printf("Error: Parse error in expression %d: unknown identifier\n\"%s\"\n", exp, token); 
 		*set = 1;
 	}
 	
@@ -353,20 +400,25 @@ int unEnded(char *token, int *set) {
 
 
 //Evaluates an expresssion to see if the expression has errors or not
-//returns expression type, 2 if no type! 
-int evalExp(char* expression[], int exLength, int exNum, char* exp) {
+//returns expression type, 0 if no type! 
+int evalExp(char* expression[], int exLength, int exNum, char* exp, int *errors) {
 	
 	//check for scan errors!
 	if(exLength == 1 && strCompare(expression[0], "")) {
 		printf("Error: Scan error in expression 0: incomplete expression\n%s\n", expression[0]);
-		
+		*errors = 1;
 		//if scan error, the expression has no type
 		return 0;
 	}
 	
 	//values and pointers to be passed through
 	//set the type of token to be analyzed
+	//if first expression, will immediately check for operand
+	//if not, will check for a space
 	int s = 1;
+	if(exNum != 0) {
+		s = 0;
+	}
 	int *set = &s;
 	
 
@@ -390,6 +442,10 @@ int evalExp(char* expression[], int exLength, int exNum, char* exp) {
 	int i = 0;
 	for(i = 0; i < exLength; i++) {
 		switch(*set) {
+			case 0:
+				err = err + newExp(expression[i], set, exNum);
+				break;
+				
 			case 1: 
 				err = err + opd1(expression[i], set, atype, exNum);
 				//determines expression type
@@ -409,18 +465,19 @@ int evalExp(char* expression[], int exLength, int exNum, char* exp) {
 				if(i <= 0) {
 					printf("WILL SEG FAULT!\n");
 				}
-				
 				err = err + opr(expression[i], expression[i- 1], set, atype, exNum);
 				
 				//determines expression type
-				if(firstOp && *set == 3) {
+				if(firstOp && *set == 3 && exEnd) {
 
 					firstOp = false;
 					if(aoperator(expression[i])) {
 						type = 1;
-					} else if(loperand(expression[i]) || notOp(expression[i])) {
+					} else if(loperator(expression[i]) || notOp(expression[i])) {
 						type = 2;
 					}
+					//printf("the type here is: %d\n", type);
+					
 				}	
 				
 				
@@ -435,11 +492,16 @@ int evalExp(char* expression[], int exLength, int exNum, char* exp) {
 				break;
 				
 			case 4:
-				err = err + unEnded(expression[i], set);
+				//if the expression was supposed to end, say so
 				if(exEnd) {
 					printf("Error: Parse error in expression %d: expression wasn't ended\n\"%s\"\n", exNum, exp);
 					exEnd = false;
 				}
+				
+				err = err + unEnded(expression[i], set, exNum, atype);
+				
+				
+				
 				break;
 				
 		}
@@ -450,20 +512,20 @@ int evalExp(char* expression[], int exLength, int exNum, char* exp) {
 	//printf("Error: Parse error in expression %d: \n\"%s\"\n", exp, token);
 	//if first expression was not reached, there had to be missing operators!
 	if(first) {
-		if(*set == 3) {
+		if(*set == 3 || *set == 1) {
 			printf("Error: Parse error in expression %d: missing operand\n\"%s\"\n", exNum, exp);
 			printf("Error: Parse error in expression %d: incomplete expression\n\"%s\"\n", exNum, exp);
-			
+			err = 1;	
 			
 		} else if(*set == 2) {
 			printf("Error: Parse error in expression %d: missing operator\n\"%s\"\n", exNum, exp);
 			printf("Error: Parse error in expression %d: incomplete expression\n\"%s\"\n", exNum, exp);
+			err = 1;
 		}
 		
 	}
-	if(!err) {
-		printf("OK!\n");
-	}
+	//returns whether or not this expression had an error
+	*errors += err;
 	
 		
 	return type;
@@ -474,12 +536,16 @@ int evalExp(char* expression[], int exLength, int exNum, char* exp) {
 
 int main(int argc, char* argv[]) {
 	//Testing area!
+	char *token = "a";
+	//printf("%d\n", (aoperator(token) || loperator(token) || notOp(token)));
+	
+	/*
 	char  *test[] = {"a", "+", "2"};
 	char *exptest = "a + 2";
 	int testLength = 3;
 	
 	int a = evalExp(test, testLength, 1, exptest);
-	
+	*/
 	/*
 	printf("%d\n", isoperator("+"));
 	printf("%d\n", isoperator("-"));
@@ -507,6 +573,10 @@ int main(int argc, char* argv[]) {
 	int lexpressions = 0;
 	int result = 0;
 	
+	//stores whether or not the expressions that the user inputs have errors
+	int e = 0;
+	int *errors = &e;
+	
 	//keeps track of the tokens 	
 	int *tknCount = (int*)malloc(sizeof(int));
 	int i = 0;//counter for all for loops
@@ -531,7 +601,7 @@ int main(int argc, char* argv[]) {
 	
 	//iterates through each expression and retrievers the errror messages along with the type of the expression
 	for(i = 0; i < *tknCount; i++) {
-		result = evalExp(opers[i], *tknCounters[i], i, expressions[i]);
+		result = evalExp(opers[i], *tknCounters[i], i, expressions[i], errors);
 		if(result == 1) {
 			aexpressions++;
 		} else if(result == 2) {
@@ -539,8 +609,14 @@ int main(int argc, char* argv[]) {
 		}
 		result = 0;
 	}
-
-
+	
+	if(!(*errors)) {
+		printf("OK!\n");
+	}
+	
+		
+	//prints out the amount of expressions
+	printf("Found %d expressions; %d logical and %d arithmetic.\n", *tknCount, lexpressions, aexpressions);
 	
 	//free all elements of expression double pointer
 	i = 0;//reset for loop counter to 0
@@ -558,7 +634,7 @@ int main(int argc, char* argv[]) {
 		free(opers[i]);
 	}
 	free(opers);
-		
+	//free tknCount	
 	free(tknCount);
 	
 	return 0;
