@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-
+#include <sys/time.h>
 
 //immediately mallocs and frees 1 byte 150 times
 int taskA() {
@@ -171,8 +171,179 @@ int taskD() {
 	
 }
 
+//TBD
+int taskE() {
+	
+	
+	return 0;
+}
+
+//TBD
+int taskF() {
+	
+	
+	return 0;
+}
+
+long mean(long *arr, int size) {
+	long int sum = 0;
+	
+	//finds the sum of all of the times
+	int i = 0; //for forloop
+	for(i = 0; i < size; i++) {
+		sum += arr[i];
+	}
+	
+	//divides by the size and returns the result
+	return sum / size;
+}
+
 int main(int argc, char *argv[]) {
-	taskD();
+	
+	//struct to time the functions
+	struct timeval start;
+	struct timeval end;
+
+	//array to store the times of each function A - F
+	long timeArr[6][100];
+	
+	//run taskA 100 times
+	int i = 0; //counter for forloops
+	for(i = 0; i < 100; i++) {
+		
+		//starts the timer
+		gettimeofday(&start, NULL);
+		
+		taskA();
+		
+		//ends the timer
+		gettimeofday(&end, NULL);
+		
+		//gets the time
+		//the first term finds the amount of seconds that elapsed
+		//we multiply this by 1million to convert it to microseconds
+		//the second term finds the amount of microseconds that elapsed
+		//we add these two terms together to get the total amount of
+		//microseconds it took for the function to execute
+		timeArr[0][i] = (1000000 * (end.tv_sec - start.tv_sec)) + (end.tv_usec - start.tv_usec);
+	}
+	
+	//run taskB 100 times
+	for(i = 0; i < 100; i++) {
+		
+		//starts the timer
+		gettimeofday(&start, NULL);
+		
+		taskB();
+		
+		//ends the timer
+		gettimeofday(&end, NULL);
+		
+		//gets the time
+		//the first term finds the amount of seconds that elapsed
+		//we multiply this by 1million to convert it to microseconds
+		//the second term finds the amount of microseconds that elapsed
+		//we add these two terms together to get the total amount of
+		//microseconds it took for the function to execute
+		timeArr[1][i] = (1000000 * (end.tv_sec - start.tv_sec)) + (end.tv_usec - start.tv_usec);
+	}
+	
+	//run taskC 100 times
+	for(i = 0; i < 100; i++) {
+		
+		//starts the timer
+		gettimeofday(&start, NULL);
+		
+		taskC();
+		
+		//ends the timer
+		gettimeofday(&end, NULL);
+		
+		//gets the time
+		//the first term finds the amount of seconds that elapsed
+		//we multiply this by 1million to convert it to microseconds
+		//the second term finds the amount of microseconds that elapsed
+		//we add these two terms together to get the total amount of
+		//microseconds it took for the function to execute
+		timeArr[2][i] = (1000000 * (end.tv_sec - start.tv_sec)) + (end.tv_usec - start.tv_usec);
+	}
+	
+	//run taskD 100 times
+	for(i = 0; i < 100; i++) {
+		
+		//starts the timer
+		gettimeofday(&start, NULL);
+		
+		taskD();
+		
+		//ends the timer
+		gettimeofday(&end, NULL);
+		
+		//gets the time
+		//the first term finds the amount of seconds that elapsed
+		//we multiply this by 1million to convert it to microseconds
+		//the second term finds the amount of microseconds that elapsed
+		//we add these two terms together to get the total amount of
+		//microseconds it took for the function to execute
+		
+		//printf("S: %ld; MS: %ld\n", (end.tv_sec - start.tv_sec), (end.tv_usec - start.tv_usec));
+
+		timeArr[3][i] = (1000000 * (end.tv_sec - start.tv_sec)) + (end.tv_usec - start.tv_usec);
+	}
+	
+	//run taskE 100 times
+	for(i = 0; i < 100; i++) {
+		
+		//starts the timer
+		gettimeofday(&start, NULL);
+		
+		taskE();
+		
+		//ends the timer
+		gettimeofday(&end, NULL);
+		
+		//gets the time
+		//the first term finds the amount of seconds that elapsed
+		//we multiply this by 1million to convert it to microseconds
+		//the second term finds the amount of microseconds that elapsed
+		//we add these two terms together to get the total amount of
+		//microseconds it took for the function to execute
+		timeArr[4][i] = (1000000 * (end.tv_sec - start.tv_sec)) + (end.tv_usec - start.tv_usec);
+	}
+	
+	//run taskF 100 times
+	for(i = 0; i < 100; i++) {
+		
+		//starts the timer
+		gettimeofday(&start, NULL);
+		
+		taskF();
+		
+		//ends the timer
+		gettimeofday(&end, NULL);
+		
+		//gets the time
+		//the first term finds the amount of seconds that elapsed
+		//we multiply this by 1million to convert it to microseconds
+		//the second term finds the amount of microseconds that elapsed
+		//we add these two terms together to get the total amount of
+		//microseconds it took for the function to execute
+		timeArr[5][i] = (1000000 * (end.tv_sec - start.tv_sec)) + (end.tv_usec - start.tv_usec);
+	}
+	
+	//takes the time table, finds the mean time for each task, and outputs it.
+	long avg[6];
+	for(i = 0; i < 6; i++) {
+		avg[i] = mean(timeArr[i], 100);
+		
+	}
+	
+	printf("The average time for taskA to run is: %ld\n", avg[0]);
+	printf("The average time for taskB to run is: %ld\n", avg[1]);
+	printf("The average time for taskC to run is: %ld\n", avg[2]);
+	printf("The average time for taskD to run is: %ld\n", avg[3]);
+	printf("The average time for taskE to run is: %ld\n", avg[4]);
+	printf("The average time for taskF to run is: %ld\n", avg[5]);
 	
 	return 0;
 }
