@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <sys/time.h>
+#include "mymalloc.h"
 
 //immediately mallocs and frees 1 byte 150 times
 int taskA() {
@@ -256,6 +257,8 @@ int taskE() {
 //will do this process of making data and freeing it 50 times
 int taskF() {
 	
+	return 0;
+	/*
 	srand(time(0));//randomizer for chosing 0-2
 	
 	//for loop will make and free data 50 times. data is stored in 3 random ways
@@ -272,15 +275,15 @@ int taskF() {
 				int *data = &d;
 
 			case 3:
-				int data = (int*)malloc(sizeof(int));
+				int *data = (int*)malloc(sizeof(int));
 				*data = 1337;
 		}
 		
 		//attempts to free data, no matter what it is
-		free(data);
+		free((int*)data);
 	}
 	
-	return 0;
+	return 0;*/
 }
 
 long mean(long *arr, int size) {
@@ -303,7 +306,7 @@ int main(int argc, char *argv[]) {
 	struct timeval end;
 
 	//array to store the times of each function A - F
-	long timeArr[6][100];
+	long timeArr[6][1000];
 	
 	//run taskA 100 times
 	int i = 0; //counter for forloops
@@ -367,7 +370,7 @@ int main(int argc, char *argv[]) {
 	}
 	
 	//run taskD 100 times
-	for(i = 0; i < 100; i++) {
+	for(i = 0; i < 1000; i++) {
 		
 		//starts the timer
 		gettimeofday(&start, NULL);
@@ -384,7 +387,7 @@ int main(int argc, char *argv[]) {
 		//we add these two terms together to get the total amount of
 		//microseconds it took for the function to execute
 		
-		//printf("S: %ld; MS: %ld\n", (end.tv_sec - start.tv_sec), (end.tv_usec - start.tv_usec));
+		printf("S: %ld; MS: %ld\n", (end.tv_sec - start.tv_sec), (end.tv_usec - start.tv_usec));
 
 		timeArr[3][i] = (1000000 * (end.tv_sec - start.tv_sec)) + (end.tv_usec - start.tv_usec);
 	}
