@@ -171,16 +171,114 @@ int taskD() {
 	
 }
 
-//TBD
+//In the beginning, allocates 4030b to one pointer and sets it aside
+//then, does what task D does.
+//This tests if the malloc function will deny memory when there
+//isnt a sufficient amount of space
+//Frees all pointers at the end, including the one that points to 4030bs
 int taskE() {
 	
+	//counter is at the next EMPTY element.
+	int counter = 0;//keeps track of malloced pointer amt
+	int mallocs = 0;//counts times malloc has been called
+	int *initialPtr = (int*)malloc(4030);//allocates 4030b
+	srand(time(0));//randomizer, returns a value that is
+			//between 0 and INTEGER_MAX.
 	
+	
+	//array that will store up to 50 pointers
+	int *ptrArr[50];
+	
+	//randomly mallocs and frees 1-64 byte chunks until 50 mallocs
+	//have been made
+	while(mallocs < 50) {
+		
+		//if array is empty
+		if(counter == 0) {
+			//mallocs a chunk
+			//randomizes chunk size, adding 1 to make sure that
+			//we are never mallocing 0 bytes!
+			ptrArr[counter] = (int*)malloc(((int)rand()) % 64 + 1);
+			
+			
+			//increments everything to keep track of space in
+			//the array and the total mallocs
+			counter++;
+			mallocs++;
+		} else {
+			//coin flips on whether to malloc or free
+			int coin = ((int)rand()) % 2;
+			
+			if(coin = 0) {
+				//malloc a chunk 1 - 64
+				ptrArr[counter] = (int*)malloc(((int)rand()) % 64 + 1);
+		
+				//if pointer is null, no more space!
+				if(ptrArr[counter] == NULL) {
+					//resets everything, so the coin flips again
+					//program will keep encountering this for loop until
+					//malloc returns a valid pointer or
+					//the program frees a memory
+					
+					//decrements everything to reset
+					counter--;
+					mallocs--;
+				}
+				
+				//increments everything to keep track of space in
+				//the array and the total mallocs
+				counter++;
+				mallocs++;
+				
+			} else {
+				//free a pointer
+				free(ptrArr[counter - 1]);
+				counter--;
+				
+			}
+		}
+	}
+	
+	//frees the entire array at the end
+	while(counter > 0) {
+		free(ptrArr[counter - 1]);
+		counter--;
+	}
+	//frees initial pointer
+	free(initialPtr);
 	return 0;
 }
 
-//TBD
+//will ramdomly chose 3 options when making space for data
+//malloc, pointer to the stack, or a normal variable
+//then, the free function will be called on the variable.
+//This will test the integrity of the free function
+//will do this process of making data and freeing it 50 times
 int taskF() {
 	
+	srand(time(0));//randomizer for chosing 0-2
+	
+	//for loop will make and free data 50 times. data is stored in 3 random ways
+	int i = 0;//counter for forloop
+	for(i = 0; i < 50; i++) {
+		int choice = (int)rand();
+		switch(choice) {
+
+			case 1:
+				int data = 1337;
+
+			case 2:
+				int d = 1337;
+				int *data = &d;
+
+			case 3:
+				int data = (int*)malloc(sizeof(int));
+				*data = 1337;
+		}
+		
+		//attempts to free data, no matter what it is
+		free(data);
+	}
 	
 	return 0;
 }
