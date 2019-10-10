@@ -2,8 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define malloc( x ) mymalloc( x, __FILE__, __LINE__ )
-#define free( x ) myfree( x, __FILE__, __LINE__ )
+
 
 void clear(char*,int);
 int getTagSize(char*);
@@ -20,6 +19,7 @@ void* mymalloc(int size,char* file,int line)
 	int temp;
 	int available=0;
 	int spaceForTag;
+	int j;
 	if(size==0)
 	{
 		return NULL;
@@ -68,7 +68,15 @@ void* mymalloc(int size,char* file,int line)
 				}
 			}	
 		}
-		printf("Malloc error in file %s on line %d:\nNot enough space available for the amount of myblock requested\n\n",file,line);
+		printf("Malloc error in file %s on line %d:\nNot enough space available for the amount of memory requested\n\n",file,line);
+		for(j=0;j<4096;j++)
+{
+if(myblock[j])
+{
+unsigned char temp=myblock[j];
+printf("byte=%d,index=%d\n",(int)temp,j);
+}
+}
 		return NULL;
 	}
 }

@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <time.h>
 #include <sys/time.h>
 #include "mymalloc.h"
-
+#define malloc(x) mymalloc(x, __FILE__, __LINE__)
+#define free(x) myfree(x, __FILE__, __LINE__)
 //immediately mallocs and frees 1 byte 150 times
 int taskA() {
 	//pointer to be malloced and demalloced
@@ -182,7 +182,7 @@ int taskE() {
 	//counter is at the next EMPTY element.
 	int counter = 0;//keeps track of malloced pointer amt
 	int mallocs = 0;//counts times malloc has been called
-	int *initialPtr = (int*)malloc(4030);//allocates 4030b
+	int *initialPtr = (int*)malloc(4028);//allocates 4030b
 	srand(time(0));//randomizer, returns a value that is
 			//between 0 and INTEGER_MAX.
 	
@@ -306,7 +306,7 @@ int main(int argc, char *argv[]) {
 	struct timeval end;
 
 	//array to store the times of each function A - F
-	long timeArr[6][1000];
+	long timeArr[6][100];
 	
 	//run taskA 100 times
 	int i = 0; //counter for forloops
@@ -370,7 +370,7 @@ int main(int argc, char *argv[]) {
 	}
 	
 	//run taskD 100 times
-	for(i = 0; i < 1000; i++) {
+	for(i = 0; i < 100; i++) {
 		
 		//starts the timer
 		gettimeofday(&start, NULL);
@@ -387,7 +387,7 @@ int main(int argc, char *argv[]) {
 		//we add these two terms together to get the total amount of
 		//microseconds it took for the function to execute
 		
-		printf("S: %ld; MS: %ld\n", (end.tv_sec - start.tv_sec), (end.tv_usec - start.tv_usec));
+		//printf("S: %ld; MS: %ld\n", (end.tv_sec - start.tv_sec), (end.tv_usec - start.tv_usec));
 
 		timeArr[3][i] = (1000000 * (end.tv_sec - start.tv_sec)) + (end.tv_usec - start.tv_usec);
 	}
@@ -448,6 +448,8 @@ int main(int argc, char *argv[]) {
 	
 	return 0;
 }
+
+
 
 
 
