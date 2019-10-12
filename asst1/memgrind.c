@@ -1,9 +1,12 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include <sys/time.h>
 #include "mymalloc.h"
-#define malloc(x) mymalloc(x, __FILE__, __LINE__)
-#define free(x) myfree(x, __FILE__, __LINE__)
+//#define malloc(x) mymalloc(x, __FILE__, __LINE__)
+//#define free(x) myfree(x, __FILE__, __LINE__)
+
+
 //immediately mallocs and frees 1 byte 150 times
 int taskA() {
 	//pointer to be malloced and demalloced
@@ -71,7 +74,7 @@ int taskC() {
 			//coin flips on whether to malloc or free
 			int coin = ((int)rand()) % 2;
 			
-			if(coin = 0) {
+			if(coin == 0) {
 				//malloc a byte
 				ptrArr[counter] = (int*)malloc(1);
 				counter++;
@@ -131,7 +134,7 @@ int taskD() {
 			//coin flips on whether to malloc or free
 			int coin = ((int)rand()) % 2;
 			
-			if(coin = 0) {
+			if(coin == 0) {
 				//malloc a chunk 1 - 64
 				ptrArr[counter] = (int*)malloc(((int)rand()) % 64 + 1);
 		
@@ -162,10 +165,17 @@ int taskD() {
 	}
 	
 	//frees the entire array at the end
+	/*
+	int i = 0;
+	for(i = 0; i < 50; i++) {
+		free(ptrArr[i]);
+	}
+	*/
 	while(counter > 0) {
 		free(ptrArr[counter - 1]);
 		counter--;
 	}
+	
 	return 0;
 	
 	
@@ -182,13 +192,13 @@ int taskE() {
 	//counter is at the next EMPTY element.
 	int counter = 0;//keeps track of malloced pointer amt
 	int mallocs = 0;//counts times malloc has been called
-	int *initialPtr = (int*)malloc(4028);//allocates 4030b
+	int *initialPtr = (int*)malloc(4028);//allocates 4028b
 	srand(time(0));//randomizer, returns a value that is
 			//between 0 and INTEGER_MAX.
 	
 	
 	//array that will store up to 50 pointers
-	int *ptrArr[50];
+	int *ptrArr[50] = { NULL };
 	
 	//randomly mallocs and frees 1-64 byte chunks until 50 mallocs
 	//have been made
@@ -210,26 +220,25 @@ int taskE() {
 			//coin flips on whether to malloc or free
 			int coin = ((int)rand()) % 2;
 			
-			if(coin = 0) {
+			if(coin == 0) {
 				//malloc a chunk 1 - 64
 				ptrArr[counter] = (int*)malloc(((int)rand()) % 64 + 1);
-		
+
 				//if pointer is null, no more space!
 				if(ptrArr[counter] == NULL) {
-					//resets everything, so the coin flips again
+					//dont do anything, so the coin flips again
 					//program will keep encountering this for loop until
 					//malloc returns a valid pointer or
 					//the program frees a memory
 					
-					//decrements everything to reset
-					counter--;
-					mallocs--;
-				}
+				} else {
 				
-				//increments everything to keep track of space in
-				//the array and the total mallocs
-				counter++;
-				mallocs++;
+					//increments everything to keep track of space in
+					//the array and the total mallocs
+					counter++;
+					mallocs++;
+				
+				}
 				
 			} else {
 				//free a pointer
@@ -241,49 +250,91 @@ int taskE() {
 	}
 	
 	//frees the entire array at the end
-	while(counter > 0) {
+	while(counter != 0) {
 		free(ptrArr[counter - 1]);
 		counter--;
 	}
+	
+	printf("\n");
 	//frees initial pointer
 	free(initialPtr);
 	return 0;
 }
 
-//will ramdomly chose 3 options when making space for data
-//malloc, pointer to the stack, or a normal variable
-//then, the free function will be called on the variable.
-//This will test the integrity of the free function
-//will do this process of making data and freeing it 50 times
+//this function randomly mallocs 127 and 254 spaces
+//then, it frees 16 random pointers.
+//afterward, attempts to malloc 16 pointers with 127 space
+//tests if the malloc function fills in empty space
 int taskF() {
+	int *arr[256];
+	int  *ptr = NULL;
+	srand(time(0)); //randomizer for choosing the size of the space
+	int coin = 0; //store coin flip result
+	int i = 0;
+	int ptramt = 0; //stores the amount of pointers in the array
+	int size = ((int)rand() % 2 + 1) * 127;//returns randomly either 127 or 254
+	ptr = (int*)malloc(size);
 	
-	return 0;
-	/*
-	srand(time(0));//randomizer for chosing 0-2
+	//randomly mallocs 127 or 254 space until all of the space is filled
+	while(ptr != NULL) {
+		arr[i] = ptr;
+		//printf("%d\t", i);
+		i++;
+		size = ((int)rand() % 2 + 1) * 127;//returns randomly either 127 or 254
+		ptr = (int*)malloc(size);
+		
+	}
+	//if the malloc failed at size 254, there is a chance that there still is a small amout of space left
+	//the following line ensures that the entire array is completely filled
+	arr[i] = (int*)malloc(127);
 	
-	//for loop will make and free data 50 times. data is stored in 3 random ways
-	int i = 0;//counter for forloop
-	for(i = 0; i < 50; i++) {
-		int choice = (int)rand();
-		switch(choice) {
-
-			case 1:
-				int data = 1337;
-
-			case 2:
-				int d = 1337;
-				int *data = &d;
-
-			case 3:
-				int *data = (int*)malloc(sizeof(int));
-				*data = 1337;
+	printf("--------------------------------------------------------------\n");
+	
+	ptramt = i;//transfers i to ptramt so that we can reset i to 0
+	
+	//does the following process 10 times
+	int j = 0;
+	for(j = 0; j < 10; j++) {
+		//frees random elements of the array
+		for(i = 0; i < ptramt; i++) {
+			coin = (int)rand() % 4;
+			if(!coin) {//only runs when the coin was originally 0
+				free(arr[i]);
+			}	
 		}
 		
-		//attempts to free data, no matter what it is
-		free((int*)data);
+		//randomly mallocs 127 or 254 space until all of the space is filled
+		
+		//prepares a random sized space and stores it in ptr.
+		i = ptramt;
+		size = ((int)rand() % 2 + 1) * 127;//returns randomly either 127 or 254
+		ptr = (int*)malloc(size);
+		//loop that keeps adding randomly size spaces (127 or 254) until space has run out
+		while(ptr != NULL) {
+			arr[i] = ptr;
+			//printf("%d\t", i);
+			i++;
+			size = ((int)rand() % 2 + 1) * 127;//returns randomly either 127 or 254
+			ptr = (int*)malloc(size);
+			
+		}
+		printf("----------------------------------------------------------------------\n");
+		
+		//if the malloc failed at size 254, there is a chance that there still is a small amout of space left
+		//the following line ensures that the entire array is completely filled
+		arr[i] = (int*)malloc(127);
+		
+		ptramt = i;//transfers the amount of pointers from i to pointeramount
 	}
 	
-	return 0;*/
+	//frees all pointers at the end
+	i = 0;
+	for(i = 0; i < ptramt; i++) {
+		free(arr[i]);
+	}
+	
+	return 0;
+	
 }
 
 long mean(long *arr, int size) {
@@ -300,6 +351,16 @@ long mean(long *arr, int size) {
 }
 
 int main(int argc, char *argv[]) {
+	//testing area
+	/*
+	taskA();
+	taskB();
+	taskC();
+	taskD();
+	taskE();
+	taskF();
+	return 0;
+	*/
 	
 	//struct to time the functions
 	struct timeval start;

@@ -1,7 +1,6 @@
-#include "mymalloc.h"
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "mymalloc.h"
 
 
 void clear(char*,int);
@@ -69,14 +68,17 @@ void* mymalloc(int size,char* file,int line)
 			}	
 		}
 		printf("Malloc error in file %s on line %d:\nNot enough space available for the amount of memory requested\n\n",file,line);
+		
+		/*
 		for(j=0;j<4096;j++)
-{
-if(myblock[j])
-{
-unsigned char temp=myblock[j];
-printf("byte=%d,index=%d\n",(int)temp,j);
-}
-}
+		{
+			if(myblock[j])
+			{
+				unsigned char temp=myblock[j];
+				printf("byte=%d,index=%d\n",(int)temp,j);
+			}
+		}
+		*/
 		return NULL;
 	}
 }
