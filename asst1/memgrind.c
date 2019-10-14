@@ -266,7 +266,7 @@ int taskE() {
 //afterward, attempts to malloc 16 pointers with 127 space
 //tests if the malloc function fills in empty space
 int taskF() {
-	int *arr[256];
+	int *arr[512];
 	int  *ptr = NULL;
 	srand(time(0)); //randomizer for choosing the size of the space
 	int coin = 0; //store coin flip result

@@ -1,0 +1,19 @@
+Testplan for tasks E and F
+
+Task E will test how the mymalloc function works when the space is almost completely filled
+Makes sure that the malloc function reacts accordingly when too much space is asked for
+	-in the beginning, allocate 4030b to one pointer and set aside
+	-next, randomly allocate and deallocate memory in randomly sized chunks of 1-64 bytes
+	-if there is no more space, the malloc function should return a null pointer
+	-makes sure that malloc successfully allocates memory 50 times
+	-frees all pointers at the end, including the one that points to 4030b
+
+Task F will test how the mymalloc function works when there are gaps within the static array
+Mimics how a user would actually use memory, freeing earlier mallocs rather than only freeing recent mallocs
+	-randomly mallocs 127 and 254 spaces
+	-then, it frees random pointers
+	-afterwards, attempts to malloc pointers with 127 and 256 space until the static array is filled
+	-does this process of freeing and attempting to malloc 10 times
+	-at the end, frees every pointer INCLUDING those that have been already freed
+	-this tests how space efficient the malloc function is
+	-as a bonus, it proves that the free function can handle getting empty or unusual pointers
