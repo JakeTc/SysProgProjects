@@ -1,11 +1,36 @@
 #include "multitest.h"
 
 typedef struct _searchArgs {
-	int *arr,
+	int *arr;
 	int start;
 	int end;
 	int target;
 } searchArgs;
+
+void* searchSection(void* arguments) {
+	//convert and unpack the arguments
+	searchArgs* arg = (searchArgs*)arguments;
+	int *arr1 = arg->arr;
+	int start1 = arg->start;
+	int end1 = arg->end;
+	int target1 = arg->target;
+
+	//pointer to the return argument. set it = -1
+	int* retval = (int*)malloc(sizeof(int));
+	*retval = -1;
+	
+	int i = 0;
+	for(i = start1; i < end1; i++) {
+		if(arr1[i] == target1) {
+			*retval = i;
+			break;
+		}
+	}
+	
+	//-1 indicates that the element was not found
+	pthread_exit((void*)retval);	
+	
+}
 
 int search(int *arr, int end, int target, int amount) {
 	//array to store all of the threads
@@ -18,7 +43,7 @@ int search(int *arr, int end, int target, int amount) {
 	//create all of the threads and give them their section
 	int i = 0;
 	for(i = 0; i < amount; i++) {
-		int start = partition * step;
+		int start = i * step;
 		
 		//determines end depending on if the child is last or not
 		int end;
@@ -53,14 +78,14 @@ int search(int *arr, int end, int target, int amount) {
 	for(i = 0; i < amount; i++) {
 		//joins with every thread in the kernel list
 		void* retval;
-		if(pthread_join(kernels + i, &retval) != 0) {
+		if(pthread_join(kernels[i], &retval) != 0) {
 			printf("Error\n");
 			return index;
 		}
 		
 		//if the returned value is not -1, thats the index we want to return
-		if(*retval != -1 && found == 0) {
-			index = *retval;
+		if(*((int*)retval) != -1 && found == 0) {
+			index = *((int*)retval);
 			found = 1;
 		}
 	}
@@ -68,26 +93,4 @@ int search(int *arr, int end, int target, int amount) {
 	return index;
 }
 
-void* searchSection(void* arguments) {
-	//convert and unpack the arguments
-	searchArgs arg = (searchArgs*)arguments;
-	int *arr1 = arg->arr;
-	int start1 = arg->start;
-	int end1 = arg->end;
-	int target1 = arg->target;
 
-	//pointer to the return argument. set it = -1
-	int* retval = (int*)malloc(sizeof(int));
-	*retval = -1;
-	
-	int i = 0;
-	for(i = start1; i < end1; i++) {
-		if(arr1[i] == target1) {
-			*retval = i;
-			break;
-	}
-	
-	//-1 indicates that the element was not found
-	return (void*)retval;	
-	
-}
