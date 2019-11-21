@@ -1,0 +1,5 @@
+#include "multitest.h"
+
+int main(int argc, char* argv[]) {
+
+}
