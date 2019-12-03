@@ -1,0 +1,50 @@
+void test1()
+{
+	int size=250;
+	int numIterations=1000;
+	int* searchSpace=malloc(size*sizeof(int));
+	makeArray(searchSpace,size);
+	unsigned long results[numIterations];
+	unsigned long maxTime=0;
+	unsigned long minTime=18000000000000000000;
+	unsigned long total=0;
+	double varianceTotal=0;
+	double standardDev;
+	int i;
+	double average;
+	struct timeval start;
+	struct timeval end;
+	int location;
+	printf("Running Test 1 using %s\nLength=%d, Target=0, Step Size=250\n",mode,size);
+	for(i=0;i<numIterations;i++)
+	{
+		gettimeofday(&start,NULL);
+		location=dummy(size, searchSpace, 0, 250);
+		gettimeofday(&end,NULL);
+		int randInt=rand()%size;
+		int temp=searchSpace[location];
+		searchSpace[location]=searchSpace[randInt];
+		searchSpace[randInt]=temp;
+		results[i]=(1000000*(end.tv_sec-start.tv_sec))+(end.tv_usec-start.tv_usec);
+		printf("Iteration %d time was %lu microseconds\n",i,results[i]);
+		if(results[i]>maxTime)
+		{
+			maxTime=results[i];
+		}
+		if(results[i]<minTime)
+		{
+			minTime=results[i];
+		}
+		total=total+results[i];
+	}
+	average=(double)total/(double)numIterations;
+	for(i=0;i<numIterations;i++)
+	{
+		varianceTotal=varianceTotal+(((double)results[i]-average)*((double)results[i]-average));
+	}
+	varianceTotal=varianceTotal/(double)numIterations;
+	standardDev=sqrt(varianceTotal);
+	printf("Min time= %lu microseconds\nMax time= %lu microseconds\nAverage time= %lf microseconds\nStandard deviation= %lf microseconds\n",minTime,maxTime,average,standardDev);
+	free(searchSpace);
+	return;
+}

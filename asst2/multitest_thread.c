@@ -14,10 +14,16 @@ void* searchSection(void* arguments) {
 	int start1 = arg->start;
 	int end1 = arg->end;
 	int target1 = arg->target;
-
+	
+	free(args);///////////////////////////////////////////////////////////////////////////////////////////////////
+	
 	//pointer to the return argument. set it = -1
 	int* retval = (int*)malloc(sizeof(int));
 	*retval = -1;
+	
+	if(start == end) {
+		pthread_exit((void*)retval);/////////////////////////////////////////////////////////////////////////////////
+	}
 	
 	int i = 0;
 	for(i = start1; i < end1; i++) {
@@ -53,8 +59,6 @@ int search(int *arr, int end, int target, int amount) {
 		} else {
 			end = start + step;
 		}
-
-		
 		
 		
 		//first make the searchargs struct
@@ -68,6 +72,7 @@ int search(int *arr, int end, int target, int amount) {
 		void* (*fnptr)(void*) = searchSection;
 
 		pthread_create(kernels + i, NULL, searchSection, (void*)arg);
+		
 			
 	}
 	
@@ -88,7 +93,11 @@ int search(int *arr, int end, int target, int amount) {
 			index = *((int*)retval);
 			found = 1;
 		}
+		
+		free(retval);/////////////////////////////////////////////////////////////////////
 	}
+
+	free(kernels)
 	
 	return index;
 }
